@@ -1,4 +1,4 @@
 # Ignore IDEA settingss
 .idea/*
-.iml
-.**/target/
+*.iml
+**/target/
