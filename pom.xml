@@ -8,7 +8,7 @@
         <version>2.1.7.RELEASE</version>
     </parent>
     <groupId>kg.gulnaz</groupId>
-    <artifactId>Simple</artifactId>
+    <artifactId>Stock_Quotes</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>demo</name>
     <description>Demo project for Spring Boot</description>
