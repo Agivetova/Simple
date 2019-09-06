@@ -1,25 +1,58 @@
 package kg.gulnaz.api;
 
 import kg.gulnaz.model.Stock;
+import kg.gulnaz.service.StockService;
+import kg.gulnaz.service.StockWithIPOExistsException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
+import javax.validation.Valid;
 import java.util.List;
 
-@RestController(value = "/api/stocks")
+@RestController
+@RequestMapping("/api/stocks")
 public class StockController {
+    private final StockService stockService;
+
+    @Autowired
+    public StockController(StockService stockService) {
+        this.stockService = stockService;
+    }
+
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public List<Stock> getAll() {
-        List<Stock> stocks = new ArrayList<>();
-        stocks.add(new Stock("APPL.M", BigDecimal.valueOf(100.0)));
-        stocks.add(new Stock("IBM.L", BigDecimal.valueOf(93.34)));
-        stocks.add(new Stock("MAC.L", BigDecimal.valueOf(94.90)));
+        return stockService.getAll();
+    }
 
-        return stocks;
+    @PutMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public Stock newStock(@RequestBody Stock stock) {
+        return stockService.save(stock);
+    }
+
+    @PostMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public Stock update(@PathVariable(value = "id") long id, @RequestBody Stock stock) {
+        stock.setId(id);
+        return stockService.save(stock);
+    }
+
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public void deleteStock(@PathVariable(value = "id") long id) {
+        stockService.delete(id);
+    }
+
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public Stock getStock(@PathVariable(value = "id") long id) {
+        return stockService.findById(id);
+    }
+
+    @ExceptionHandler(StockWithIPOExistsException.class)
+    public ResponseEntity<ErrorResponse> handle(StockWithIPOExistsException ex) {
+        ErrorResponse body = new ErrorResponse();
+        body.setError("CONFLICTING");
+        body.setMessage(ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 }
