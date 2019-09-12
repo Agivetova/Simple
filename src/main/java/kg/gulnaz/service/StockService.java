@@ -1,19 +1,16 @@
 package kg.gulnaz.service;
 
-import kg.gulnaz.entity.StockEntity;
+import kg.gulnaz.jpa.entity.StockEntity;
 import kg.gulnaz.model.Stock;
-import kg.gulnaz.model.repository.StockRepository;
+import kg.gulnaz.jpa.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

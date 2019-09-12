@@ -1,4 +1,4 @@
-package kg.gulnaz.entity;
+package kg.gulnaz.jpa.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
