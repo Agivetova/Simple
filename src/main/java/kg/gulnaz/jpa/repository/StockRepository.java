@@ -1,6 +1,6 @@
-package kg.gulnaz.model.repository;
+package kg.gulnaz.jpa.repository;
 
-import kg.gulnaz.entity.StockEntity;
+import kg.gulnaz.jpa.entity.StockEntity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
