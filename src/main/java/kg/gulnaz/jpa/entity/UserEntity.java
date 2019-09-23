@@ -1,5 +1,6 @@
 package kg.gulnaz.jpa.entity;
 
+import kg.gulnaz.model.Role;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,12 +29,25 @@ public class UserEntity {
     )
     private List<RoleEntity> roles;
 
-    public UserEntity() {
+    public UserEntity(int id, String username, List<Role> roles) {
         //default constructor
     }
 
     public UserEntity(String username, char[] password) {
         this.username = username;
         this.password = password;
+    }
+
+    public UserEntity(long id, String username, char[] password) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+    }
+
+    public UserEntity(long id, String username, char[] password, List<RoleEntity> roles) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
     }
 }

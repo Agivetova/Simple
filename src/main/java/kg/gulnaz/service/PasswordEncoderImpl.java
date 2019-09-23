@@ -21,7 +21,7 @@ public class PasswordEncoderImpl implements PasswordEncoder {
     }
 
     @Override
-    public CharSequence encode(char[] array) {
+    public String encode(char[] array) {
         byte[] encodedBytes = md.digest(new String(array).getBytes());
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < encodedBytes.length; i++) {
