@@ -7,13 +7,17 @@ import kg.gulnaz.jpa.repository.UserRepository;
 import kg.gulnaz.model.Role;
 import kg.gulnaz.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
+import javax.persistence.EntityNotFoundException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,14 +34,20 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User createUser(String login, char[] password) {
-        CharSequence encodedPassword = passwordEncoder.encode(password);
-        UserEntity newUser = new UserEntity(login, encodedPassword.toString().toCharArray());
+    @Transactional
+    public User register(String login, char[] password) {
+        String encodedPassword = passwordEncoder.encode(password);
+        UserEntity newUser = new UserEntity(login, encodedPassword.toCharArray());
         RoleEntity defaultUserRole = roleDao.getDefaultUserRole();
         newUser.setRoles(Arrays.asList(defaultUserRole));
-        UserEntity entity = userDao.save(newUser);
-        return dto(entity);
+        try {
+            UserEntity entity = userDao.save(newUser);
+            return dto(entity);
+        } catch (DataIntegrityViolationException ex) {
+            throw new UserWithLoginAlreadyExists(String.format("User with %s already exists", login));
+        }
     }
+
 
     private User dto(UserEntity entity) {
         List<Role> roles = toDto(entity.getRoles());
@@ -49,8 +59,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        //TODO
-        return null;
+        UserEntity user = userDao.findByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException(String.format("User with login %s not found", username));
+        }
+
+        Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+
+        for (RoleEntity role : user.getRoles()) {
+            grantedAuthorities.add(new SimpleGrantedAuthority(role.getName()));
+        }
+        String password = new String(user.getPassword());
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), password, grantedAuthorities);
     }
 }
