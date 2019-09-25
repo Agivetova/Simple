@@ -1,5 +1,6 @@
 package kg.gulnaz.service;
 
+import org.apache.commons.codec.binary.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -21,12 +22,20 @@ public class PasswordEncoderImpl implements PasswordEncoder {
     }
 
     @Override
-    public String encode(char[] array) {
-        byte[] encodedBytes = md.digest(new String(array).getBytes());
+    public String encode(CharSequence rawPassword) {
+        byte[] encodedBytes = md.digest(rawPassword.toString().getBytes());
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < encodedBytes.length; i++) {
-            sb.append(Integer.toString((encodedBytes[i] & 0xff) + 0x100, 16).substring(1));
+        for (byte encodedByte : encodedBytes) {
+            sb.append(Integer.toString((encodedByte & 0xff) + 0x100, 16).substring(1));
         }
         return sb.toString();
+    }
+
+    @Override
+    public boolean matches(CharSequence rawPassword, String encodedPassword) {
+        if (rawPassword == null || encodedPassword.isEmpty()) {
+            return false;
+        }
+        return StringUtils.equals(encodedPassword, encode(rawPassword));
     }
 }

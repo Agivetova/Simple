@@ -1,9 +1,9 @@
 package kg.gulnaz.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -19,8 +19,10 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
     private String postmanSecret = "secret";
 
     @Autowired
-    @Qualifier("customAuthManager")
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -33,6 +35,8 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
                 .refreshTokenValiditySeconds(7 * 60);
 
     }
+
+
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
@@ -49,4 +53,5 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
     private TokenStore tokenStore() {
         return new InMemoryTokenStore();
     }
+
 }
