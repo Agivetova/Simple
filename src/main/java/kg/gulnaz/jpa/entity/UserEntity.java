@@ -29,7 +29,7 @@ public class UserEntity {
     )
     private List<RoleEntity> roles;
 
-    public UserEntity(int id, String username, List<Role> roles) {
+    public UserEntity() {
         //default constructor
     }
 
