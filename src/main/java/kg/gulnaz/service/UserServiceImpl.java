@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.nio.CharBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,7 +37,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional
     public User register(String login, char[] password) {
-        String encodedPassword = passwordEncoder.encode(password);
+        String encodedPassword = passwordEncoder.encode(CharBuffer.wrap(password));
         UserEntity newUser = new UserEntity(login, encodedPassword.toCharArray());
         RoleEntity defaultUserRole = roleDao.getDefaultUserRole();
         newUser.setRoles(Arrays.asList(defaultUserRole));
