@@ -1,9 +1,10 @@
 package kg.gulnaz.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -21,8 +22,10 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
     private String adminSecret = "secret";
 
     @Autowired
-    @Qualifier("customAuthManager")
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -43,11 +46,13 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
 
     }
 
+
+
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
         security.tokenKeyAccess("permitAll()")
                 .checkTokenAccess("isAuthenticated()")
-                .allowFormAuthenticationForClients();
+                .passwordEncoder(NoOpPasswordEncoder.getInstance());
     }
 
     @Override
@@ -60,4 +65,5 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
     private TokenStore tokenStore() {
         return new InMemoryTokenStore();
     }
+
 }
