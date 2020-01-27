@@ -1,9 +1,10 @@
 package kg.gulnaz.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -17,10 +18,14 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
     private String postman = "postman";
     private String postmanSecret = "secret";
+    private String admin = "admin";
+    private String adminSecret = "secret";
 
     @Autowired
-    @Qualifier("customAuthManager")
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -30,13 +35,24 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
                 .scopes("read", "write")
                 .authorizedGrantTypes("password")
                 .accessTokenValiditySeconds(5 * 60)
-                .refreshTokenValiditySeconds(7 * 60);
+                .refreshTokenValiditySeconds(7 * 60)
+                .and()
+                .withClient(admin).secret(adminSecret)
+                .scopes("read", "write")
+                .authorizedGrantTypes("password", "refresh_token")
+                .accessTokenValiditySeconds(5 * 60)
+                .refreshTokenValiditySeconds(7 * 80)
+                .redirectUris("http://localhost:8081/login");
 
     }
 
+
+
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
-        security.tokenKeyAccess("permitAll()").checkTokenAccess("isAuthenticated()");
+        security.tokenKeyAccess("permitAll()")
+                .checkTokenAccess("isAuthenticated()")
+                .passwordEncoder(NoOpPasswordEncoder.getInstance());
     }
 
     @Override
@@ -49,4 +65,5 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
     private TokenStore tokenStore() {
         return new InMemoryTokenStore();
     }
+
 }
